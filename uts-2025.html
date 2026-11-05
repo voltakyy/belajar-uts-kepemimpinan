@@ -63,6 +63,61 @@
   </div>
 </div>
 
+<!-- ============ SIMULASI ============ -->
+<section id="latihan" style="border-top:none; padding-top:8px">
+  <div class="sec-head">
+    <div class="eyebrow">Latihan berwaktu</div>
+    <h2>Simulasi 90 menit</h2>
+    <p class="lede">Kerjakan keempat soal ini sebelum membuka jawaban. Timer berjalan 90 menit, jawabanmu tersimpan otomatis di perangkat ini.</p>
+  </div>
+
+  <div id="exam" data-year="2025">
+    <div class="exam-bar">
+      <div class="timer" id="timer">90:00</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" id="start">Mulai</button>
+        <button class="btn ghost" id="reset">Reset</button>
+      </div>
+      <span id="status" style="font-size:13px;color:var(--muted);flex:1;min-width:180px">Belum dimulai.</span>
+    </div>
+
+    <div class="exam-q">
+      <div class="meta">Soal 1 · 25 poin</div>
+      <div class="txt">Bagaimana menerapkan konsep kepemimpinan yang baik (kedisiplinan, kemandirian dan kejuangan) dalam memimpin diri sendiri!</div>
+      <textarea data-q="1" placeholder="Tulis jawabanmu di sini…"></textarea>
+      <div class="score-row">Nilai mandiri <input type="number" min="0" max="25" data-score="1" placeholder="0"> / 25</div>
+    </div>
+
+    <div class="exam-q">
+      <div class="meta">Soal 2 · 25 poin</div>
+      <div class="txt">Bagaimana prinsip Aqidah dan Akhlaq mempengaruhi pengambilan keputusan dalam situasi konflik pada kehidupan bermasyarakat dan bernegara!</div>
+      <textarea data-q="2" placeholder="Tulis jawabanmu di sini…"></textarea>
+      <div class="score-row">Nilai mandiri <input type="number" min="0" max="25" data-score="2" placeholder="0"> / 25</div>
+    </div>
+
+    <div class="exam-q">
+      <div class="meta">Soal 3 · 25 poin</div>
+      <div class="txt">Berikan 3 contoh sikap profesionalisme dan bekerja sama untuk menghadapi tantangan kepemimpinan dalam organisasi kemahasiswaan!</div>
+      <textarea data-q="3" placeholder="Tulis jawabanmu di sini…"></textarea>
+      <div class="score-row">Nilai mandiri <input type="number" min="0" max="25" data-score="3" placeholder="0"> / 25</div>
+    </div>
+
+    <div class="exam-q">
+      <div class="meta">Soal 4 · 25 poin</div>
+      <div class="txt">Bagaimana cara meningkatkan keterampilan kepemimpinan dalam tim multidisiplin! Tuliskan bukti konkret dari pengalaman Anda!</div>
+      <textarea data-q="4" placeholder="Tulis jawabanmu di sini…"></textarea>
+      <div class="score-row">Nilai mandiri <input type="number" min="0" max="25" data-score="4" placeholder="0"> / 25</div>
+    </div>
+
+    <div class="exam-bar" style="justify-content:flex-end">
+      <span style="font-size:13px;color:var(--muted)">Total nilai mandiri</span>
+      <span style="font-family:var(--mono);font-size:20px"><b id="total">0</b> / 100</span>
+    </div>
+  </div>
+
+  <p style="font-size:13.5px;color:var(--muted)">Sudah selesai? Bandingkan dengan model jawaban di bawah, lalu isi nilai mandiri memakai rubrik tiap soal.</p>
+</section>
+
 <!-- Q1 -->
 <article class="q" id="q1">
   <div class="q-head">

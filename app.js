@@ -107,12 +107,135 @@
     });
   }
 
+  /* ---------- simulasi ujian ---------- */
+  var EXAM_MS = 90 * 60 * 1000;
+
+  function initExam() {
+    var root = $("#exam");
+    if (!root) return;
+
+    var year = root.getAttribute("data-year") || "x";
+    var KEY = "kki:exam:" + year;
+    var timerEl = $("#timer");
+    var startBtn = $("#start");
+    var resetBtn = $("#reset");
+    var statusEl = $("#status");
+    var totalEl = $("#total");
+    var areas = $$("textarea", root);
+    var scores = $$("input[data-score]", root);
+
+    var state = { deadline: 0, answers: {}, scores: {} };
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (raw) state = Object.assign(state, JSON.parse(raw));
+    } catch (e) {}
+
+    function save() {
+      try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+    }
+
+    function pad(n) { return n < 10 ? "0" + n : "" + n; }
+
+    function paintTimer(msLeft) {
+      if (!timerEl) return;
+      var total = Math.max(0, Math.floor(msLeft / 1000));
+      var m = Math.floor(total / 60);
+      var s = total % 60;
+      timerEl.textContent = pad(m) + ":" + pad(s);
+      timerEl.classList.toggle("low", total <= 300);
+    }
+
+    var tickId = null;
+
+    function tick() {
+      var left = state.deadline - Date.now();
+      if (left <= 0) {
+        paintTimer(0);
+        if (statusEl) statusEl.textContent = "Waktu habis — berhenti menulis.";
+        if (startBtn) { startBtn.disabled = false; startBtn.textContent = "Mulai ulang"; }
+        state.deadline = 0;
+        save();
+        clearInterval(tickId);
+        tickId = null;
+        areas.forEach(function (a) { a.readOnly = true; });
+        return;
+      }
+      paintTimer(left);
+    }
+
+    function start() {
+      if (!state.deadline) {
+        state.deadline = Date.now() + EXAM_MS;
+        save();
+      }
+      areas.forEach(function (a) { a.readOnly = false; });
+      if (startBtn) { startBtn.disabled = true; startBtn.textContent = "Sedang berjalan…"; }
+      if (statusEl) statusEl.textContent = "Kerjakan 4 soal, 90 menit. Jawaban tersimpan otomatis.";
+      if (tickId) clearInterval(tickId);
+      tickId = setInterval(tick, 1000);
+      tick();
+    }
+
+    function reset() {
+      if (!window.confirm("Hapus jawaban, nilai, dan waktu pada simulasi ini?")) return;
+      state = { deadline: 0, answers: {}, scores: {} };
+      save();
+      if (tickId) { clearInterval(tickId); tickId = null; }
+      areas.forEach(function (a) { a.value = ""; a.readOnly = false; });
+      scores.forEach(function (i) { i.value = ""; });
+      paintTimer(EXAM_MS);
+      if (startBtn) { startBtn.disabled = false; startBtn.textContent = "Mulai"; }
+      if (statusEl) statusEl.textContent = "Belum dimulai.";
+      updateTotal();
+    }
+
+    function updateTotal() {
+      var sum = 0;
+      scores.forEach(function (i) {
+        var v = parseInt(i.value, 10);
+        if (!isNaN(v)) sum += Math.max(0, Math.min(25, v));
+      });
+      if (totalEl) totalEl.textContent = String(sum);
+    }
+
+    areas.forEach(function (a) {
+      var q = a.getAttribute("data-q");
+      if (state.answers[q]) a.value = state.answers[q];
+      a.addEventListener("input", function () {
+        state.answers[q] = a.value;
+        save();
+      });
+    });
+
+    scores.forEach(function (i) {
+      var q = i.getAttribute("data-score");
+      if (state.scores[q]) i.value = state.scores[q];
+      i.addEventListener("input", function () {
+        var v = parseInt(i.value, 10);
+        if (!isNaN(v)) i.value = String(Math.max(0, Math.min(25, v)));
+        state.scores[q] = i.value;
+        save();
+        updateTotal();
+      });
+    });
+
+    updateTotal();
+    paintTimer(state.deadline ? state.deadline - Date.now() : EXAM_MS);
+
+    if (state.deadline && state.deadline > Date.now()) start();
+    else if (state.deadline) { paintTimer(0); if (statusEl) statusEl.textContent = "Waktu habis."; }
+
+    if (startBtn) startBtn.addEventListener("click", start);
+    if (resetBtn) resetBtn.addEventListener("click", reset);
+  }
+
   /* ---------- boot ---------- */
   function boot() {
     initTheme();
     initNav();
     initGlossary();
     initFlashcards();
+    initExam();
   }
 
   if (document.readyState === "loading") {

@@ -1,0 +1,17 @@
+# file sistem
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# editor
+.vscode/
+.idea/
+*.swp
+
+# node (kalau nanti ada tooling)
+node_modules/
+package-lock.json
+
+# hasil build / arsip pribadi
+dist/
+*.zip

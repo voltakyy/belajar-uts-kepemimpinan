@@ -1406,6 +1406,211 @@ details[open] summary::after {
   box-shadow: 1px 1px 0 var(--ink);
 }
 
+/* ---------- Auto-scroll Dock (Naskah 2024 & 2025) ---------- */
+.has-autoscroll {
+  padding-bottom: 104px;
+}
+
+.autoscroll-dock {
+  position: fixed;
+  left: max(18px, env(safe-area-inset-left));
+  bottom: max(18px, env(safe-area-inset-bottom));
+  z-index: 998;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: min(340px, calc(100vw - 36px));
+  padding: 11px 13px 14px;
+  background: var(--card);
+  border: 2px solid var(--ink);
+  border-radius: 14px;
+  box-shadow: 4px 4px 0 var(--ink);
+  font-family: var(--mono);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.as-play {
+  flex: 0 0 auto;
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: var(--mustard);
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  border-radius: 10px;
+  box-shadow: 2px 2px 0 var(--ink);
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform .12s ease, background .12s ease, box-shadow .12s ease;
+}
+
+.as-play:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+.as-play:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+
+.autoscroll-dock.is-playing .as-play {
+  background: var(--teal);
+  color: #fff;
+}
+
+.as-play svg {
+  display: block;
+  width: 19px;
+  height: 19px;
+  fill: currentColor;
+}
+
+.as-ico-pause { display: none; }
+.autoscroll-dock.is-playing .as-ico-play { display: none; }
+.autoscroll-dock.is-playing .as-ico-pause { display: block; }
+
+.as-body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.as-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 1px;
+}
+
+.as-title {
+  overflow: hidden;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.as-speed {
+  flex: 0 0 auto;
+  padding: 1px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--mustard-soft);
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  font-variant-numeric: tabular-nums;
+}
+
+.as-range {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 20px;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.as-range::-webkit-slider-runnable-track {
+  height: 8px;
+  background: linear-gradient(90deg, var(--teal) 0 var(--fill, 14%), var(--paper-deep) var(--fill, 14%) 100%);
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+}
+
+.as-range::-moz-range-track {
+  height: 8px;
+  background: linear-gradient(90deg, var(--teal) 0 var(--fill, 14%), var(--paper-deep) var(--fill, 14%) 100%);
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+}
+
+.as-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 17px;
+  height: 17px;
+  margin-top: -5.5px;
+  background: var(--tomato);
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+}
+
+.as-range::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: var(--tomato);
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+}
+
+.as-range:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+  border-radius: 999px;
+}
+
+.as-progress {
+  position: absolute;
+  left: 13px;
+  right: 13px;
+  bottom: 6px;
+  height: 3px;
+  background: rgba(36, 34, 31, .13);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.as-progress i {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: var(--teal);
+  border-radius: inherit;
+}
+
+@media (max-width: 640px) {
+  .has-autoscroll {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+  .autoscroll-dock {
+    left: max(12px, env(safe-area-inset-left));
+    right: max(12px, env(safe-area-inset-right));
+    bottom: max(12px, env(safe-area-inset-bottom));
+    width: auto;
+    gap: 9px;
+    padding: 9px 11px 13px;
+  }
+  .as-play {
+    width: 44px;
+    height: 44px;
+  }
+  .has-autoscroll .back-to-top {
+    right: max(14px, env(safe-area-inset-right));
+    bottom: calc(98px + env(safe-area-inset-bottom));
+    width: 44px;
+    height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .as-play {
+    transition: none;
+  }
+}
+
 /* ---------- Responsive Breakpoints ---------- */
 @media (max-width: 640px) {
   .site-head {
@@ -1524,8 +1729,11 @@ details[open] summary::after {
     background: #fff !important;
     color: #000 !important;
   }
-  body::before, .site-head, .exam-nav, .exam-tabs-wrap, .exam-score-bar, .sim-actions, .sim-textarea, .no-print, .btn, .back-to-top {
+  body::before, .site-head, .exam-nav, .exam-tabs-wrap, .exam-score-bar, .sim-actions, .sim-textarea, .no-print, .btn, .back-to-top, .autoscroll-dock {
     display: none !important;
+  }
+  .has-autoscroll {
+    padding-bottom: 0 !important;
   }
   .shell {
     width: 100% !important;

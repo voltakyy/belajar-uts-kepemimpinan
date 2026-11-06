@@ -66,6 +66,19 @@ dan memang tidak ada satu pun butir soal UTS 2024 maupun 2025 yang menanyakannya
 Jawaban dan nilai tersimpan di `localStorage` peramban — tidak ada akun,
 tidak ada data yang dikirim ke mana pun.
 
+### Auto-scroll naskah
+
+Halaman `uts-2024.html` dan `uts-2025.html` punya pengatur auto-scroll di
+pojok kiri bawah, mirip pembaca komik:
+
+- Tekan tombol putar untuk mulai membaca tanpa menyentuh layar.
+- Geser slider untuk mengatur kecepatan **0,5× sampai 4×** (langkah 0,25×).
+  Kecepatan terakhir diingat dan dipakai di kedua halaman.
+- Auto-scroll otomatis berhenti saat kamu menggeser layar sendiri, memutar
+  roda mouse, menekan tombol panah, atau membuka tautan anchor.
+- Sampai di akhir naskah, scroll berhenti sendiri; tekan putar lagi untuk
+  mulai dari atas.
+
 ## Teknis
 
 - HTML + CSS + JavaScript murni. **Tanpa build tool, tanpa dependensi, tanpa CDN.**
@@ -81,6 +94,7 @@ belajar-uts-kepemimpinan/
 ├── uts-2025.html       paket soal 2025/2026
 ├── styles.css          sistem desain (satu berkas untuk semua halaman)
 ├── app.js              tema, navigasi, glosarium, flashcard, simulator
+├── autoscroll.js       auto-scroll naskah 2024 & 2025 (0,5×–4×)
 ├── .nojekyll           agar GitHub Pages tidak memproses lewat Jekyll
 └── README.md
 ```

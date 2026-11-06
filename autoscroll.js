@@ -1,42 +1,36 @@
 /* ============================================================
-   Auto-scroll Naskah UTS KKI (2024 & 2025)
-   Scroll otomatis ala pembaca komik, kecepatan 0,5x–4x.
+   Auto-scroll materi kuliah (ala pembaca komik)
+   Kecepatan 0,5x–4x, halus di HP, jeda otomatis saat digeser.
 
-   - Posisi diakumulasikan sebagai bilangan pecahan lalu dikirim
-     lewat requestAnimationFrame, jadi gerakannya halus (tidak
-     lompat per piksel seperti setInterval + scrollBy).
-   - Otomatis jeda saat pembaca menggeser layar, memakai roda
-     mouse, menekan tombol panah, atau membuka tautan anchor.
-   - Berhenti sendiri di akhir naskah; tekan putar lagi untuk
-     mulai dari atas.
-   - Kecepatan terakhir disimpan di localStorage dan dipakai
-     bersama oleh halaman 2024 & 2025.
+   Pasang di halaman mana pun:
+     <link rel="stylesheet" href="autoscroll.css">
+     <script src="autoscroll.js" defer></script>
    ============================================================ */
 (function () {
   "use strict";
 
   const body = document.body;
-  if (!body || !body.classList.contains("has-autoscroll")) return;
-  if (document.getElementById("autoscrollDock")) return;
+  if (!body || document.getElementById("autoscrollDock")) return;
+  body.classList.add("has-autoscroll");
 
   const STORE_KEY = "kki_autoscroll_speed_v1";
   const MIN_SPEED = 0.5;
   const MAX_SPEED = 4;
   const STEP = 0.25;
-  const RAMP_MS = 420;        // "gas" halus saat mulai
-  const BASE_MOBILE_PX = 44;  // px/detik pada 1x, layar kecil
-  const BASE_DESKTOP_PX = 58; // px/detik pada 1x, layar besar
-  const SAMPLE_FRAMES = 15;   // ukur ulang dokumen tiap ~250 ms
+  const RAMP_MS = 420;
+  const BASE_MOBILE_PX = 44;
+  const BASE_DESKTOP_PX = 58;
+  const SAMPLE_FRAMES = 15;
+  const MIN_SCROLLABLE = 140;
 
   const docEl = document.documentElement;
   const scroller = document.scrollingElement || docEl;
 
-  /* ---------- Bangun kontrol ---------- */
   const dock = document.createElement("div");
   dock.className = "autoscroll-dock";
   dock.id = "autoscrollDock";
   dock.setAttribute("role", "group");
-  dock.setAttribute("aria-label", "Kontrol auto-scroll naskah");
+  dock.setAttribute("aria-label", "Kontrol auto-scroll");
   dock.innerHTML =
     '<button class="as-play" type="button" id="asPlay" aria-pressed="false" ' +
     'aria-label="Mulai auto-scroll" title="Mulai / jeda auto-scroll">' +
@@ -49,7 +43,7 @@
     "</button>" +
     '<div class="as-body">' +
     '<div class="as-top">' +
-    '<span class="as-title">Auto-scroll naskah</span>' +
+    '<span class="as-title">Auto-scroll</span>' +
     '<span class="as-speed" id="asSpeed">1×</span>' +
     "</div>" +
     '<input class="as-range" id="asRange" type="range" min="0.5" max="4" step="0.25" value="1" ' +
@@ -63,7 +57,6 @@
   const speedOut = dock.querySelector("#asSpeed");
   const fill = dock.querySelector("#asFill");
 
-  /* ---------- State ---------- */
   let speed = 1;
   let playing = false;
   let raf = 0;
@@ -80,8 +73,7 @@
 
   function clampSpeed(v) {
     if (!isFinite(v)) v = 1;
-    v = Math.min(MAX_SPEED, Math.max(MIN_SPEED, Math.round(v / STEP) * STEP));
-    return v;
+    return Math.min(MAX_SPEED, Math.max(MIN_SPEED, Math.round(v / STEP) * STEP));
   }
 
   function speedLabel(v) {
@@ -93,7 +85,7 @@
     try {
       const raw = localStorage.getItem(STORE_KEY);
       if (raw !== null) v = parseFloat(raw);
-    } catch (e) { /* mode privat / storage diblokir */ }
+    } catch (e) { /* storage diblokir */ }
     return clampSpeed(v);
   }
 
@@ -119,6 +111,13 @@
     maxY = Math.max(1, scroller.scrollHeight - window.innerHeight);
   }
 
+  function syncDock() {
+    refreshMax();
+    const enough = maxY >= MIN_SCROLLABLE;
+    dock.style.display = enough ? "" : "none";
+    if (!enough && playing) setPlaying(false);
+  }
+
   function paintProgress(pct) {
     pct = Math.max(0, Math.min(100, pct));
     pct = Math.round(pct * 10) / 10;
@@ -131,19 +130,16 @@
     return (window.scrollY / maxY) * 100;
   }
 
-  /* ---------- Loop utama ---------- */
   function begin() {
     refreshMax();
 
     if (savedBehavior === null) {
       savedBehavior = docEl.style.scrollBehavior;
-      // Matikan smooth-scroll CSS supaya tiap frame tidak
-      // memicu animasi baru (penyebab utama scroll tersendat).
       docEl.style.scrollBehavior = "auto";
     }
 
     if (window.scrollY >= maxY - 2) {
-      window.scrollTo(0, 0); // sudah di dasar → mulai dari atas
+      window.scrollTo(0, 0);
     }
 
     pos = window.scrollY;
@@ -194,8 +190,6 @@
     let dt = (ts - lastTs) / 1000;
     lastTs = ts;
     if (dt < 0) dt = 0;
-    // Kalau frame sempat tersendat (tab pindah, HP ngelag),
-    // jangan lompat jauh — cukup maju satu langkah kecil.
     if (dt > 0.1) dt = 0.1;
 
     const t = Math.min(1, (ts - startTs) / RAMP_MS);
@@ -219,7 +213,6 @@
     raf = requestAnimationFrame(tick);
   }
 
-  /* ---------- Jeda otomatis saat pembaca ikut menggeser ---------- */
   function insideDock(target) {
     return target instanceof Element && !!target.closest("#autoscrollDock");
   }
@@ -255,17 +248,16 @@
     if (document.hidden && playing) setPlaying(false);
   });
 
-  /* ---------- Sinkronisasi tinggi & progres ---------- */
   if ("ResizeObserver" in window) {
     const ro = new ResizeObserver(function () {
-      refreshMax();
+      syncDock();
       if (!playing) paintProgress(progressNow());
     });
     ro.observe(body);
   }
 
   window.addEventListener("resize", function () {
-    refreshMax();
+    syncDock();
     if (!playing) paintProgress(progressNow());
   }, { passive: true });
 
@@ -277,7 +269,6 @@
     });
   }, { passive: true });
 
-  /* ---------- Kontrol ---------- */
   playBtn.addEventListener("click", function () {
     setPlaying(!playing);
   });
@@ -295,8 +286,7 @@
     saveSpeed(speed);
   });
 
-  /* ---------- Init ---------- */
   setSpeed(loadSpeed(), false);
-  refreshMax();
+  syncDock();
   paintProgress(progressNow());
 })();
